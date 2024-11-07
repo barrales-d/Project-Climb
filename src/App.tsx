@@ -1,38 +1,61 @@
-import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
+import { useEffect, useRef } from "react";
 
-const client = generateClient<Schema>();
+import "./App.css";
+
+import Phaser from "phaser";
+
+class MainScene extends Phaser.Scene {
+
+  constructor() {
+    super({ key: "MainScene" });
+  }
+  preload() {
+    // TODO: load assets like images and sounds
+  }
+
+  create() {
+    this.add.text(400, 300, "Project Climb", {
+      fontSize: "64px",
+    }).setOrigin(0.5, 0.5);
+  }
+}
+
+const config: Phaser.Types.Core.GameConfig = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  parent: "game-container",
+  backgroundColor: "#000000",
+  scene: [MainScene],
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { x: 0, y: 300 },
+      debug: true,
+    },
+  }
+};
 
 function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+  const gameRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }, []);
+    if (gameRef.current && !gameRef.current.children.length) {
+      new Phaser.Game(config);
+    }
 
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
-  }
+    return () => {
+      // Clean up
+    };
+  }, []);
 
   return (
     <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-          Review next step of this tutorial.
-        </a>
+      <div ref={gameRef} id="game-container">
       </div>
+      {/* <div className="react-ui">
+        hello world
+      </div> */}
     </main>
   );
 }
