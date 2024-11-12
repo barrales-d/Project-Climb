@@ -1,0 +1,46 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+/* Import fonts via Relative Paths  */
+/* @font-face {
+    font-family: ;
+    src: url();
+} */
+
+:root {
+    font-family: "Monaspace Krypton Var", 'Courier New', Courier, monospace;
+    font-size: 1em;
+    /* set up colors */
+}
+
+html,
+body {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #FAF8F6;
+}
+
+/* Any react UI element use:
+ position: fixed;
+ z-index: 1;
+
+*/
+#ui {
+    position: absolute;
+    width: 800px;
+    height: 600px;
+}
+.test-text {
+    position: absolute;
+    z-index: 1;
+    color: blue;
+    padding: 2rem;
+}
