@@ -33,14 +33,66 @@ body {
  z-index: 1;
 
 */
+#game {
+    flex: 1;
+}
 #ui {
     position: absolute;
     width: 800px;
     height: 600px;
+    /* TODO: remember to remove border */
+    border: 2px solid red;
 }
 .test-text {
     position: absolute;
     z-index: 1;
     color: blue;
     padding: 2rem;
+}
+
+.menu-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 400px;
+    width: 300px;
+    color: white;
+    border: 2px solid;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2em;
+    animation: fadeIn 0.3s ease;
+    transition: opacity 0.3s ease;
+}
+.menu-btn {
+    width: 200px;
+    height: 3rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.menu-btn:active, .menu-btn:hover {
+    background-color: antiquewhite;
+
+}
+.pause-btn {
+    /* color: white; */
+    position: absolute;
+    width: 32px;
+    aspect-ratio: 1 / 1;
+    top: 20px;
+    right: 20px;
+}
+.pause-btn:active, .pause-btn:hover {
+    background-color: antiquewhite;
+
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

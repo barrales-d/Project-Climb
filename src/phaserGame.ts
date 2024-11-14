@@ -1,19 +1,28 @@
 import Phaser from "phaser";
 import { SCREENSIZE } from "./constants";
+import { playerName, store } from "./store";
 
 class SignInScene extends Phaser.Scene {
+  private player: string = "";
   // Will render a black box while user is signing in using react ui?
   constructor() {
     super("SignInScene");
   }
 
   preload() {
+    this.player = store.get(playerName);
   }
 
   create() {
-    this.add.text(400, 300, "Hello World from Phaser", {
+    this.add.text(400, 75, "Project Climb", {
       fontSize: "32px"
     }).setOrigin(0.5);
+    // store.sub(playerName, () => {
+    //   this.player = store.get(playerName);
+    //   if (this.player !== "") {
+    //     this.add.text(400, 200, `Welcome, ${this.player}`, { fontSize: '32px' }).setOrigin(0.5);
+    //   }
+    // })
   }
 }
 
