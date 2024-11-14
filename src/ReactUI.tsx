@@ -52,7 +52,7 @@ const ReactUI = () => {
                             <MainMenu signOut={signOut}/>
                         </>
                     ) : (
-                        <div className="test-text">
+                        <div className="menu-container">
                             <h1>Signing in...</h1>
                         </div>
                     )
