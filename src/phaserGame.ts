@@ -93,7 +93,8 @@ class MainScene extends Phaser.Scene {
     const currentPosition = this.player.getCenter();
     const distance = Phaser.Math.Distance.BetweenPoints(this.startPosition, currentPosition);
     this.score = distance / 100;
-    this.scoreText.text = `${this.score.toFixed(2)}m`;
+    if (parseFloat(this.scoreText.text) < this.score)
+      this.scoreText.text = `${this.score.toFixed(2)}m`;
 
     // Generate new plateforms as player moves up
     if (this.player.y < this.lastPlatformY + SCREENSIZE.height / 2) {
@@ -138,7 +139,7 @@ class MainScene extends Phaser.Scene {
 
     store.set(currentViewAtom, 'gameover');
     store.set(isMenuVisable, true);
-    
+
     this.pauseGame();
 
   }
