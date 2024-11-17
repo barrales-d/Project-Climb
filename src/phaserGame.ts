@@ -1,32 +1,72 @@
 import Phaser from "phaser";
-import { SCREENSIZE } from "./constants";
+import { PLAYER_JUMP_HEIGHT, PLAYER_SPEED, SCREENSIZE } from "./constants";
 import { isMenuVisable, store } from "./store";
 
 class MainScene extends Phaser.Scene {
   private pauseOverlay!: Phaser.GameObjects.Rectangle;
   private titleText!: Phaser.GameObjects.Text;
 
-  private player!: Phaser.GameObjects.Rectangle;
+  private player!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+  private platforms!: Phaser.Physics.Arcade.StaticGroup;
+  private lastPlatformY: number = 0;
+
+  private startPosition: Phaser.Math.Vector2 = Phaser.Math.Vector2.ZERO;
+  private scoreText!: Phaser.GameObjects.Text;
+  private score: number = 0;
+  
+  // World Barrier
+  private leftBarrier!: Phaser.GameObjects.Rectangle;
+  private rightBarrier!: Phaser.GameObjects.Rectangle;
   // Renders the main game
   constructor() {
     super("MainScene");
   }
 
   preload() {
-    // this.load.image("sky", "assets/sky.png");
+    this.load.image("player", "assets/player.png");
+    this.load.image("platform", "assets/platform.png");
+    this.load.image("background", "assets/background.png");
   }
 
   create() {
-    // Create game objects once
-    this.player = this.add.rectangle(400, 300, 100, 100, 0xff0000).setOrigin(0.5);
+    this.add.image(0, 0, 'background').setOrigin(0, 0).setScrollFactor(0);
+    // Create Platforms
+    this.platforms = this.physics.add.staticGroup();
+    this.createInitialPlatforms();
 
+    // Create Player
+    this.player = this.physics.add.sprite(SCREENSIZE.width / 2, 450, 'player').setScale(0.05);
+    this.startPosition = new Phaser.Math.Vector2(SCREENSIZE.width / 2, 570);
+    this.player.setBounce(0.2);
+
+    this.physics.add.collider(this.player, this.platforms);
+
+    const barrierPosX = 160; 
+    this.leftBarrier = this.add.rectangle(barrierPosX, 400, 10, 800, 0x000000, 0);
+    this.rightBarrier = this.add.rectangle(SCREENSIZE.width - barrierPosX, 400, 10, 800, 0x000000, 0);
+
+    this.physics.add.existing(this.leftBarrier, true);
+    this.physics.add.existing(this.rightBarrier, true);
+
+    this.physics.add.collider(this.player, this.leftBarrier);
+    this.physics.add.collider(this.player, this.rightBarrier);
+
+    // Adds camera that follows player
+    this.cameras.main.startFollow(this.player, true, 0, 1);
+    this.cameras.main.setDeadzone(0, 200);
+
+    // Create Score
+    this.scoreText = this.add.text(16, 16, `${this.score.toFixed(2)}m`, { fontSize: '32px', color: '#000' });
+    this.scoreText.setScrollFactor(0);
     // Create pause and title objects but make them invisible
     this.pauseOverlay = this.add.rectangle(0, 0, SCREENSIZE.width, SCREENSIZE.height, 0x000000, 0.8)
       .setOrigin(0, 0)
+      .setScrollFactor(0)
       .setVisible(false);
     this.titleText = this.add.text(400, 75, "Project Climb", { fontSize: "32px" })
       .setOrigin(0.5)
       .setVisible(false);
+    this.titleText.setScrollFactor(0);
 
     // Subscribe to menu state changes
     store.sub(isMenuVisable, () => {
@@ -42,6 +82,72 @@ class MainScene extends Phaser.Scene {
   update() {
     if (this.scene.isPaused())
       return;
+    // No Kayboard found?
+    if (!this.input.keyboard)
+      return;
+
+    const cursors = this.input.keyboard.createCursorKeys();
+    // Ground Movement
+    if (cursors.left.isDown) {
+      this.player.setVelocityX(-PLAYER_SPEED);
+    } else if (cursors.right.isDown) {
+      this.player.setVelocityX(PLAYER_SPEED);
+    } else {
+      this.player.setVelocityX(0);
+    }
+
+    // Jump Movement
+    if (cursors.up.isDown && this.player.body.touching.down) {
+      this.player.setVelocityY(-PLAYER_JUMP_HEIGHT);
+
+      if (this.player.flipX) {
+        this.player.setAngularVelocity(-360);
+      } else {
+        this.player.setAngularVelocity(360);
+      }
+
+    }
+
+    if (this.player.body.touching.down) {
+      this.player.setRotation(0);
+      this.player.setAngularVelocity(0);
+    }
+
+    // Calculate Score
+    const currentPosition = this.player.getCenter();
+    const distance = Phaser.Math.Distance.BetweenPoints(this.startPosition, currentPosition);
+    this.score = distance / 100;
+    this.scoreText.text = `${this.score.toFixed(2)}m`;
+
+    console.log(this.scoreText.text);
+
+    // Generate new plateforms as player moves up
+    if (this.player.y < this.lastPlatformY + SCREENSIZE.height / 2) {
+      this.createPlatform();
+    }
+
+    // Remove platforms that have gone off screen
+    this.platforms.getChildren().forEach((platform) => {
+      const platformSprite = platform as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+
+      if (platformSprite.y > this.cameras.main.scrollY + SCREENSIZE.height) {
+        platformSprite.destroy();
+      }
+
+    });
+
+    // Update barrier positions to follow camera
+    const cameraY = this.cameras.main.scrollY;
+    this.leftBarrier.setY(cameraY + 400);
+    this.rightBarrier.setY(cameraY + 400);
+
+    (this.leftBarrier.body as Phaser.Physics.Arcade.Body).updateFromGameObject(); 
+    (this.rightBarrier.body as Phaser.Physics.Arcade.Body).updateFromGameObject(); 
+
+    const firstPlatformY = this.getLowestPlatform();
+    if (this.player.y > firstPlatformY + SCREENSIZE.height / 2) {
+      this.gameOver();
+    }
 
   }
 
@@ -55,6 +161,55 @@ class MainScene extends Phaser.Scene {
     this.pauseOverlay.setVisible(false);
     this.titleText.setVisible(false);
     this.scene.resume();
+  }
+  gameOver() {
+    // TODO: create reset button here
+    this.pauseGame();
+  }
+
+  createPlatform() {
+    const minDistance = 100; // Minimum vertical distance between platforms
+    const maxDistance = 200; // Maximum vertical distance between platforms
+
+    // Calculate new platform position
+    const platformY = this.lastPlatformY - Phaser.Math.Between(minDistance, maxDistance);
+    const platformX = Phaser.Math.Between(200, SCREENSIZE.width - 200);
+
+    // Create the platform
+    // const platform = this.platforms.create(platformX, platformY, 'platform');
+    this.platforms.create(platformX, platformY, 'platform')
+      .setScale(0.2, 0.05)
+      .refreshBody();
+    this.lastPlatformY = platformY;
+
+    // // Add score value to platform
+    // platform.setData('scored', false);
+  }
+
+  createInitialPlatforms() {
+    // Create starting platform
+    const startPlatform = this.platforms.create(400, 600, 'platform');
+    startPlatform.setScale(0.25, 0.05).refreshBody();
+    this.lastPlatformY = 600;
+
+    // Create some initial platforms
+    for (let i = 0; i < 5; i++) {
+      this.createPlatform();
+    }
+  }
+
+  getLowestPlatform() {
+    let lowestPlatformY = this.lastPlatformY;
+    this.platforms.getChildren().forEach((platform) => {
+      const platformSprite = platform as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+      // checking > because the Y axis is flipped
+      if (platformSprite.y > lowestPlatformY) {
+        lowestPlatformY = platformSprite.y;
+      }
+
+    });
+
+    return lowestPlatformY;
   }
 
 }

@@ -15,3 +15,6 @@ export const SCREENSIZE: {
     width: 800,
     height: 600
 };
+
+export const PLAYER_SPEED: number = 160;
+export const PLAYER_JUMP_HEIGHT: number = 400;
