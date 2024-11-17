@@ -3,6 +3,8 @@ import { isMenuVisable } from "../store"
 import { useMenuState } from "../hooks/useMenuState";
 import { Leaderboard } from "./LeaderBoard";
 import { Setting } from "./Setting";
+import { GameOver } from "./GameOver";
+import { Overlay } from "./Overlay";
 
 export function MainMenu({ signOut }: { signOut: any }) {
 
@@ -28,10 +30,13 @@ export function MainMenu({ signOut }: { signOut: any }) {
                 return <Leaderboard />
             case 'settings':
                 return <Setting signOut={signOut} />
+            case 'gameover':
+                return <GameOver />
             case 'main':
             default:
                 return (
                     <div className="menu-container">
+                        <h1>Project Climb</h1>
                         <button className="menu-btn" onClick={toggleMenu}>Play</button>
                         <button className="menu-btn" onClick={() => setCurrentView('leaderboard')}>Leaderboard</button>
                         <button className="menu-btn" onClick={() => setCurrentView('settings')}>Settings</button>
@@ -40,5 +45,9 @@ export function MainMenu({ signOut }: { signOut: any }) {
         }
     };
 
-    return renderView();
+    return (
+        <Overlay>
+            {renderView()}
+        </Overlay>
+    );
 }

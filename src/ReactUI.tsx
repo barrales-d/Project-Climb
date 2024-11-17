@@ -5,6 +5,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { isMenuVisable, playerName } from "./store";
 import { useEffect } from "react";
 import { MainMenu } from "./react_components/MainMenu";
+import { Overlay } from "./react_components/Overlay";
 
 const ReactUI = () => {
     const components = {
@@ -39,34 +40,19 @@ const ReactUI = () => {
         })();
     });
     return (
-        <>
-            <Authenticator components={components}>
-                {({ signOut }) => (
-                    name != '' ? (
-                        // <div className="test-text">
-                        //     <h1>Hello {user?.username}</h1>
-                        //     <h2>Hello {name}</h2>
-                        //     <button onClick={signOut}>Sign out</button>
-                        // </div>
-                        <>
-                            <MainMenu signOut={signOut}/>
-                        </>
-                    ) : (
+        <Authenticator components={components}>
+            {({ signOut }) => (
+                name != '' ? (
+                    <MainMenu signOut={signOut} />
+                ) : (
+                    <Overlay>
                         <div className="menu-container">
                             <h1>Signing in...</h1>
                         </div>
-                    )
-                    // if isMenuVisisble:
-                    //  render menu and handle states
-                    //  when play clicks on Play, set isMenuVisible to false
-                    // if isMenuVisible is false:
-                    //  render pause button on top right corner
-                    //  when clicked set isMenuVisible to true 
-                )}
-            </Authenticator>
-            {/* <p className="test-text">Tap to move</p> */}
-            {/* TODO: Bring the UI Components here */}
-        </>
+                    </Overlay>
+                )
+            )}
+        </Authenticator>
     );
 }
 

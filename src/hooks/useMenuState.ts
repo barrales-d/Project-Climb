@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { currentViewAtom, isMenuVisable } from "../store";
 
-export type MenuView = "main" | "leaderboard" | "settings";
+export type MenuView = "main" | "leaderboard" | "settings" | "gameover";
 export function useMenuState() {
     const [isMenuVisibleValue, setIsMenuVisible] = useAtom(isMenuVisable);
     const [currentView, setCurrentView] = useAtom(currentViewAtom);

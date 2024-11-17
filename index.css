@@ -36,6 +36,7 @@ body {
 #game {
     flex: 1;
 }
+
 #ui {
     position: absolute;
     width: 800px;
@@ -43,12 +44,29 @@ body {
     /* TODO: remember to remove border */
     border: 2px solid red;
 }
+
 .test-text {
     position: absolute;
     z-index: 1;
     color: blue;
     padding: 2rem;
 }
+
+.overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 800px;
+    height: 600px;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* z-index: ; */
+    animation: fadeIn 0.3s ease-in-out;
+}
+
 
 .menu-container {
     position: absolute;
@@ -58,7 +76,7 @@ body {
     height: 400px;
     width: 300px;
     color: white;
-    border: 2px solid;
+    border: 2px solid white;
     border-radius: 0.5rem;
     display: flex;
     flex-direction: column;
@@ -68,6 +86,7 @@ body {
     animation: fadeIn 0.3s ease;
     transition: opacity 0.3s ease;
 }
+
 .menu-btn {
     width: 200px;
     height: 3rem;
@@ -75,10 +94,12 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.menu-btn:active, .menu-btn:hover {
+.menu-btn:active,
+.menu-btn:hover {
     background-color: antiquewhite;
 
 }
+
 .pause-btn {
     /* color: white; */
     position: absolute;
@@ -87,12 +108,19 @@ body {
     top: 20px;
     right: 20px;
 }
-.pause-btn:active, .pause-btn:hover {
+
+.pause-btn:active,
+.pause-btn:hover {
     background-color: antiquewhite;
 
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
