@@ -3,7 +3,7 @@ import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 const schema = a.schema({
   Players: a.model({
     username: a.string().required(),
-    highscore: a.integer().required().default(0.00),
+    highscore: a.integer().required(),
     achievedAt: a.date().default(() => new Date())
   })
     .authorization((allow) => [allow.publicApiKey()])
