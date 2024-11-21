@@ -7,13 +7,5 @@ import { defineAuth } from '@aws-amplify/backend';
 export const auth = defineAuth({
   loginWith: {
     email: true,
-  },
-  userAttributes: {
-    "custom:PlayerName": {
-      dataType: "String",
-      mutable: false,
-      minLen: 6,
-      maxLen: 15,
-    },
-  },
+  }
 });

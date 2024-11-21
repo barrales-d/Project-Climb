@@ -1,21 +1,12 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 
 const schema = a.schema({
-  Player: a
-    .model({
-      name: a.string(),
-      score: a.float(),
-      achievedAt: a.datetime(),
-    })
-    .authorization((rules) => {
-      return [
-        // Anyone can read players scores like for a Leaderboard
-        rules.guest().to(['read']),
-        // Players/Users can create and update their scores
-        rules.authenticated().to(['create', 'update']),
-        rules.owner().to(['update']),
-      ];
-    }),
+  Players: a.model({
+    username: a.string().required(),
+    highscore: a.integer().required().default(0.00),
+    achievedAt: a.date().default(() => new Date())
+  })
+    .authorization((allow) => [allow.publicApiKey()])
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -23,6 +14,9 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "userPool",
+    defaultAuthorizationMode: "apiKey",
+    apiKeyAuthorizationMode: {
+      expiresInDays: 30,
+    }
   }
 });

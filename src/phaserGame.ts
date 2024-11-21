@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { PLAYER_JUMP_HEIGHT, PLAYER_SPEED, SCREENSIZE } from "./constants";
-import { currentViewAtom, isMenuVisable, store } from "./store";
+import { currentViewAtom, isMenuVisable, playerScoreAtom, store } from "./store";
 
 class MainScene extends Phaser.Scene {
   private player!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -65,6 +65,7 @@ class MainScene extends Phaser.Scene {
         this.resumeGame();
       }
     })
+
   }
 
   update() {
@@ -73,6 +74,7 @@ class MainScene extends Phaser.Scene {
     // No Keyboard found?
     if (!this.input.keyboard)
       return;
+
 
     const cursors = this.input.keyboard.createCursorKeys();
     // Ground Movement
@@ -88,13 +90,6 @@ class MainScene extends Phaser.Scene {
     if (cursors.up.isDown && this.player.body.touching.down) {
       this.player.setVelocityY(-PLAYER_JUMP_HEIGHT);
     }
-
-    // Calculate Score
-    const currentPosition = this.player.getCenter();
-    const distance = Phaser.Math.Distance.BetweenPoints(this.startPosition, currentPosition);
-    this.score = distance / 100;
-    if (parseFloat(this.scoreText.text) < this.score)
-      this.scoreText.text = `${this.score.toFixed(2)}m`;
 
     // Generate new plateforms as player moves up
     if (this.player.y < this.lastPlatformY + SCREENSIZE.height / 2) {
@@ -119,6 +114,13 @@ class MainScene extends Phaser.Scene {
     (this.leftBarrier.body as Phaser.Physics.Arcade.Body).updateFromGameObject();
     (this.rightBarrier.body as Phaser.Physics.Arcade.Body).updateFromGameObject();
 
+    // Calculate Score
+    const currentPosition = this.player.getCenter();
+    const distance = Phaser.Math.Distance.BetweenPoints(this.startPosition, currentPosition);
+    this.score = distance / 100;
+    if (parseFloat(this.scoreText.text) < this.score)
+      this.scoreText.text = `${this.score.toFixed(2)}m`;
+
     const firstPlatformY = this.getLowestPlatform();
     if (this.player.y > firstPlatformY + SCREENSIZE.height / 2) {
       this.gameOver();
@@ -135,12 +137,13 @@ class MainScene extends Phaser.Scene {
   }
   gameOver() {
     // TODO: create Probably pass score through jotai store as well
-    this.scene.restart();
+    store.set(playerScoreAtom, this.score);
 
     store.set(currentViewAtom, 'gameover');
     store.set(isMenuVisable, true);
 
-    this.pauseGame();
+    this.scene.restart();
+    this.score = 0.00;
 
   }
 

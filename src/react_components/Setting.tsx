@@ -1,10 +1,9 @@
 import { useMenuState } from "../hooks/useMenuState";
 
-export function Setting({ signOut }: { signOut: any }) {
+export function Setting() {
     const { setCurrentView } = useMenuState();
     function logOff() {
         setCurrentView('main');
-        signOut();
     }
     return (
         <div className="menu-container">

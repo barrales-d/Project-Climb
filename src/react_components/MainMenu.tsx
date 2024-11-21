@@ -6,7 +6,7 @@ import { Setting } from "./Setting";
 import { GameOver } from "./GameOver";
 import { Overlay } from "./Overlay";
 
-export function MainMenu({ signOut }: { signOut: any }) {
+export function MainMenu() {
 
     const { currentView, setCurrentView } = useMenuState();
     const [isMenuVisibleValue, setIsMenuVisible] = useAtom(isMenuVisable);
@@ -29,7 +29,7 @@ export function MainMenu({ signOut }: { signOut: any }) {
             case 'leaderboard':
                 return <Leaderboard />
             case 'settings':
-                return <Setting signOut={signOut} />
+                return <Setting />
             case 'gameover':
                 return <GameOver />
             case 'main':
